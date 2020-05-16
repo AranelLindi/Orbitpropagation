@@ -1,7 +1,7 @@
 #ifndef _sgp4_sgp4Propagator_
 #define _sgp4_sgp4Propagator_
 
-#include "../tle/tle.h"
+#include "../TLEInterpreter/tle.h" // ACHTUNG! Hier wurde Pfad geändert um eigenen Interpeter nutzen zu können!
 
 // -------------------------- structure declarations ----------------------------
 
