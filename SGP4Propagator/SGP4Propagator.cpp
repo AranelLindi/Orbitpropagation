@@ -66,7 +66,7 @@ void SGP4Propagator::calculatePositionAndVelocity(int32_t secsAfterEpoch, ECICoo
 		/**
 		 * Circulation term in [sec/rev].
 		 */
-		T = SEC_PER_DAY / (n_0 * 1440.0 / TWO_PI);
+		T = SEC_PER_DAY / (n_0 * 1440.0 / TWOPI);
 
 		/**
 		 * Large half axis of the orbit in [km].

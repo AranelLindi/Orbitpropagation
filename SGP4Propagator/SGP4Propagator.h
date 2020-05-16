@@ -26,7 +26,7 @@ struct ECICoordinate
 class SGP4Propagator
 {
 private:
-	Tle tle; //< contains the TLE used for the orbit propagation
+	TLE tle; //< contains the TLE used for the orbit propagation
 	bool neConstsInitialized = false; ///< indicates if the near earth constants were initialized
 
 public:
@@ -37,7 +37,7 @@ public:
 	 *
 	 * This function is also used to update the TLE once a new one is available.
 	 */
-	inline void setTle(const Tle &_tle)
+	inline void setTle(const TLE &_tle)
 	{
 		//set the TLE to the new value
 		this->tle = _tle;
