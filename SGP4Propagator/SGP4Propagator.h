@@ -1,7 +1,7 @@
 #ifndef _sgp4_sgp4Propagator_
 #define _sgp4_sgp4Propagator_
 
-#include "../TLEinterpreter/TLE.h" // ACHTUNG! Hier wurde Pfad geändert um eigenen Interpeter nutzen zu können!
+#include "../TLEinterpreter/TLE.h"
 
 // -------------------------- structure declarations ----------------------------
 
@@ -26,7 +26,7 @@ struct ECICoordinate
 class SGP4Propagator
 {
 private:
-	TLE tle; //< contains the TLE used for the orbit propagation
+	Tle tle; //< contains the TLE used for the orbit propagation
 	bool neConstsInitialized = false; ///< indicates if the near earth constants were initialized
 
 public:
@@ -37,7 +37,7 @@ public:
 	 *
 	 * This function is also used to update the TLE once a new one is available.
 	 */
-	inline void setTle(const TLE &_tle)
+	inline void setTle(const Tle &_tle)
 	{
 		//set the TLE to the new value
 		this->tle = _tle;

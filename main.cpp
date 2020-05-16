@@ -1,9 +1,6 @@
 // Standartbibliotheken
 #include <cstdio>
 
-// eigener Code bzw. Uni-Code
-#include "TLEinterpreter/process.cpp" // TLE Interpreter
-#include "SGP4Propagator/SGP4Propagator.cpp" // Uni-Code
 #include "task2_2.h"
 
 
