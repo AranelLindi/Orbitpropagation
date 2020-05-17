@@ -80,20 +80,17 @@ double computeJD(int year, double dayFractions) {
     */
 }    
 
+int getUTTime(void) { return 0; } // Noch zu implementieren. Sie unten!
+
 double computeGMST(double jd) {
-    int a, b, c, d, e;
+    // (1) Using the Julian date, JD, and the universal time, UT, in hours, calculate T, the number of centuries from J2000
+    double T = (jd + getUTTime() / 24 - 2451545.0) / 36525;
+    // (2) Calculate the mean longitude corrected for aberration, L; the mean
+    // anomaly, G; the ecliptic longitude, lambda; and the obliquity of the ecliptic, e:
 
-    a = exint(jd + 0.5);
-    b = a + 1537; // kein exint!
-    c = exint(( b - 122.1 ) / 365.25);
-    d = exint(365.25 * c);
-    e = exint(( b - d ) / 30.6001);
-
-    double D = b - d - exint( 30.6001 * e ) + exfrac( jd + 0.5 );
-    double M = e - 1 - 12 * exint( e / 14 );
-    double Y = c - 4715 - exint( ( 7 + M ) / 10 );
-
-    return 0; // ACHTUNG!
+    /*
+    QUELLE: https://books.google.de/books?id=Nq_1CAAAQBAJ&pg=PA73&lpg=PA73&dq=Julian+Date+Number+in+Greenwich+Meridian+Startime&source=bl&ots=JIHPd5iyiA&sig=ACfU3U3MvCsSi1-C74qO7rnnpcQrxyLnsA&hl=de&sa=X&ved=2ahUKEwjV8KuS_bvpAhUM-qQKHWVkBAMQ6AEwAHoECAoQAQ#v=onepage&q=Julian%20Date%20Number%20in%20Greenwich%20Meridian%20Startime&f=false
+    */
 }
 
 //GeocentricCoordinate convertECItoGeocentric(const ECICoordinate& eciCoord, double jd);
