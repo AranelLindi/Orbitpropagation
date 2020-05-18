@@ -74,36 +74,36 @@ double computeJD(int year, double dayFractions) {
     // Ab Stunde die Gleitkommazahlen speichern für Umrechnungen:
     double hourfrac = exfrac<double>(dayFractions) * 24; 
     double minutefrac = exfrac<double>(hourfrac) * 60;
-    float secondfrac = exfrac<float>(minutefrac) * 60; // ab hier wirkt sich größere Genauigkeit bei Double nur noch 
+    float secondfrac = exfrac<float>(minutefrac) * 60; // ab hier wirkt sich größere Genauigkeit bei double nur noch marginal aus. Es wird float verwendet um Speicher zu sparen.
     float milisecondfrac = exfrac<float>(secondfrac) * 100; // 100 ms = 1 s
-    float mikrosecondfrac = exfrac<float>(milisecondfrac) * 100; // 100 mikros = 1 ms 
+    float mikrosecondfrac = exfrac<float>(milisecondfrac) * 100; // 100 mikrosec = 1 ms 
 
     // Alle Variablen in Ganzzahltypen umwandeln:
     // Wichtig: Hier noch nicht mit Julianischen Konstanten rechnen, da es sich noch um "gregorianische" Größen handelt.
     // Die Umrechnung beginnt erst später in der Berechnung des JDs.
     uint16_t years = year; // Intervall: [0; 2099] negative Jahreszahlen werden nicht berücksichtigt!
     uint8_t months = uabrnd(dayFractions / 30.6001); // Intervall: [0; 11] (Ausnahme von obiger Regel: Liefert hinreichend genaue Angaben des Monats)
-    uint16_t days = getDayOfMonth(year, exint(dayFractions));//uabrnd(dayFractions - (months * 30.6001)) + 1; // Intervall: [0; 365]
+    uint16_t days = getDayOfMonth(year, exint(dayFractions)); // Intervall: [0; 365/366]
     uint8_t hours = exint(hourfrac); // Intervall: [0; 24)
     uint8_t minutes = exint(minutefrac); // Intervall: [0; 60)
     uint8_t seconds = exint(secondfrac); // Intervall: [0; 60)
     uint8_t miliseconds = exint(milisecondfrac); // Intervall: [0; 100)
     uint8_t mikroseconds = exint(mikrosecondfrac); // Intervall: [0; 100)
 
-    /*plot(hourfrac)
+    plot(hourfrac)
     plot(minutefrac)
     plot(secondfrac)
     plot(milisecondfrac)
     plot(mikrosecondfrac)
     plot("----")
     plot(years)
-    plot((int)months)*/
+    plot((int)months)
     plot(days)
-    /*plot((int)hours)
+    plot((int)hours)
     plot((int)minutes)
     plot((int)seconds)
     plot((int)miliseconds)
-    plot((int)mikroseconds)*/
+    plot((int)mikroseconds)
 
     // ****************************************************************************************
     // Noch prüfen ob Fallunterscheidung wirklich wegfällt!! (Beispiele ausprobieren!)
