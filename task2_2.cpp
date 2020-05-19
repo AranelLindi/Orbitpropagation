@@ -50,8 +50,9 @@ bool checkforLeapYear(uint16_t year) {
 
     // Aussagenbeschreibung: Jahr ist ein Schaltjahr genau dann wenn...
     // Jahr durch 4 teilbar ist UND ( es NICHT durch 100 teilbar ist ODER es durch 400 teilbar ist)    
-    return ( A & ( !B | C ) ); // WICHTIG: kein && oder || verwenden - ALLE drei Ausdrücke MÜSSEN 
-    // ausgewertet werden!
+    return ( A && ( !B | C ) ); // WICHTIG: kein || verwenden - ALLE beiden Ausdrücke in der "Oder"-Klammer MÜSSEN 
+    // ausgewertet werden, während A zwangsläufig wahr sein muss, damit auch B/C wahr sein können. Hier ist && okay.
+    // Wenn A falsch ist, werden B und C gar nicht erst ausgewertet.
 }
 
 // Hier const definieren, von aufrufenden Funktionen klonen lassen. Vorteil: Nur hier dauerhaft änderbar.
@@ -101,6 +102,16 @@ int getMonthOfYear(uint16_t year, uint16_t days) {
         days -= sub_days_month[counter];
         counter++; // Monat inkrementieren
     } // zum nächsten Monat übergehen
+
+
+    /*
+    PRÜFAUFTRAG: SCHAUEN OB DIE IN DER JD BERECHNUNG IMPLEMENTIERTE INKREMENTIERUNG DES MONATS
+    AUCH HIER VORGENOMMEN WERDEN KÖNNTE. FESTGESTELLT, DASS FÜR DEN AUGUST HIER EINE 7 UND KEINE
+    8 ZURÜCKGEGEBEN WIRD!
+    */
+
+
+    // Verursacht einen Overflow, wenn mehr als 365/366 Tage übergeben werden!
     
     // Nach Prinzip getDayOfYear: Wenn Tage kleiner sind als ein voller Monat, sind wir im richtigen Monat gelandet. 
     // Dann einfach Zähler zurückgeben:
@@ -127,7 +138,7 @@ double computeJD(int year, double dayFractions) {
     uint8_t minutes = exint(minute_frac); // Intervall: [0; 60)
     uint8_t seconds = exint(second_frac); // Intervall: [0; 60)
     uint8_t miliseconds = exint(milisecond_frac); // Intervall: [0; 100)
-    uint8_t mikroseconds = exint(microsecond_frac); // Intervall: [0; 100)
+    uint8_t microseconds = exint(microsecond_frac); // Intervall: [0; 100)
 
     // ****************************************************************************************
     // Fallunterscheidung: *(month ist größer 0 wird vorausgesetzt (Datentyp unsigned & dayFraction > 0))*
@@ -157,7 +168,7 @@ double computeJD(int year, double dayFractions) {
                         ( minutes / ( 24.0 * 60.0 ) ) +
                         ( seconds / ( 24.0 * 60.0 * 60.0 ) ) +
                         ( miliseconds / ( 24.0 * 60.0 * 60.0 * 100.0 ) ) +
-                        ( mikroseconds / ( 24.0 * 60.0 * 60.0 * 100.0 * 100.0 ) ) +
+                        ( microseconds / ( 24.0 * 60.0 * 60.0 * 100.0 * 100.0 ) ) +
                         1720981.5
                         ;
     // ****************************************************************************************
