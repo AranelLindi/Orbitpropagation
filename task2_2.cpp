@@ -1,5 +1,6 @@
 // Standartbibliothek
 #include <cmath>
+#include <array>
 #include <cstdint>
 #include <iostream>
 
@@ -31,12 +32,7 @@ inline int exint(double decimal) {
     return static_cast<int>(integral);
 }
 
-// Gibt abhängig von Schaltjahr/Nicht-Schaltjahr und dem Tag des Jahres, den Tag des Monats zurück (z.B. 206 Day of Year = 24. Tag des Monats Juli)
-int getDayOfMonth(int year, uint16_t days) {
-    uint8_t days_month[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-
-    // Prüfen ob year ein Schaltjahr ist, falls ja, dann zu Februar (days_month[1] einen Tag addieren!)
-    
+bool checkforLeapYear(uint16_t year) {
     // Schaltjahr-Regel für gregorianischen Kalender:
     // 1. Regel: Jahr ist durch 4 teilbar -> Schaltjahr
     // 2. Regel: Jahr ist durch 100 teilbar -> KEIN Schaltjahr
@@ -54,21 +50,61 @@ int getDayOfMonth(int year, uint16_t days) {
 
     // Aussagenbeschreibung: Jahr ist ein Schaltjahr genau dann wenn...
     // Jahr durch 4 teilbar ist UND ( es NICHT durch 100 teilbar ist ODER es durch 400 teilbar ist)    
-    if ( A & ( !B | C ) ) days_month[1]++; // WICHTIG: kein && oder || verwenden - ALLE drei Ausdrücke MÜSSEN 
+    return ( A & ( !B | C ) ); // WICHTIG: kein && oder || verwenden - ALLE drei Ausdrücke MÜSSEN 
     // ausgewertet werden!
+}
+
+// Hier const definieren, von aufrufenden Funktionen klonen lassen. Vorteil: Nur hier dauerhaft änderbar.
+const std::array<uint8_t, 12> days_month = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+// Gibt abhängig von Schaltjahr/Nicht-Schaltjahr und dem Tag des Jahres, den Tag des Monats zurück (z.B. 206 Day of Year = 24. Tag des Monats Juli)
+int getDayOfMonth(uint16_t year, uint16_t days) {
+    //uint8_t days_month[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}; Löschen wenn das Klonen auch funktioniert!
+    
+    // Array klonen, ist dann auch nicht mehr const
+    std::array<uint8_t, 12> sub_days_month = days_month;
+    uint8_t& february = sub_days_month[1]; // Zeigt auf zweites Arrayfeld (entspr. Februar)
+    
+    // Auf Schaltjahr prüfen
+    if ( checkforLeapYear(year) ) february++; // und falls ja, Tage des Februar um 1 erhöhen (29. Februar)
 
     // Nachdem Jahrestyp feststeht, beginnen, den Tag des Monats herauszufinden. Dazu so lange
     // durch Monate (Array) iterieren und die ganzen Monate von der Tageszahl abziehen, bis 
     // der nächste Monat bzw. dessen Tage größer ist als die aktuelle Summe => Monat gefunden!
-    for (size_t i = 0; days > days_month[i]; i++)
+    for (uint8_t i = 0; days > sub_days_month[i]; i++)
     {
-        days -= days_month[i];
+        days -= sub_days_month[i];
     }
     // Wird eine Tageszahl größer als 365/366 übergeben, verursacht diese Funktion einen Array Overflow!
     
     // Schleife bricht ab, wenn aktuelle Anzahl Tage kleiner ist als Anzahl Gesamttage des aktuellen Monats
     // dann sind wir im richtigen Monat gelandet
     return days;
+}
+
+// Liefert für die Anzahl der Tage des Jahres in Abhängigkeit von Schaltjahr/Nicht-Schaltjahr, den Monat in dem sich der Tag befindet (z.B. für 206 Day of Year = Monat Juli)
+int getMonthOfYear(uint16_t year, uint16_t days) {
+    // Array klonen, ist dann auch nicht mehr const
+    std::array<uint8_t, 12> sub_days_month = days_month;
+    uint8_t& february = sub_days_month[1]; // Zeigt auf zweites Arrayfeld (entspr. Februar)
+
+    // Auf Schaltjahr prüfen
+    if ( checkforLeapYear(year) ) february++; // und falls ja, Tage des Februar um 1 erhöhen (29. Februar)
+
+    // Nachdem Jahrestyp feststeht, beginnen, den Monat des Jahres herauszufinden. Dazu so lange
+    // durch Monate (Array) iterieren und die ganzen Monate von der Tageszahl abziehen, bis 
+    // der nächste Monat bzw. dessen Tage größer ist als die aktuelle Summe => Monat gefunden!
+    uint8_t counter = 0; // Monatszähler
+
+    while (days > sub_days_month[counter])
+    {
+        days -= sub_days_month[counter];
+        counter++; // Monat inkrementieren
+    } // zum nächsten Monat übergehen
+    
+    // Nach Prinzip getDayOfYear: Wenn Tage kleiner sind als ein voller Monat, sind wir im richtigen Monat gelandet. 
+    // Dann einfach Zähler zurückgeben:
+    return counter;
 }
 
 // Berechnet die Julian Day Number entsprechend des Jahres und des Tagebruchs.
@@ -85,7 +121,7 @@ double computeJD(int year, double dayFractions) {
     // Wichtig: Hier noch nicht mit Julianischen Konstanten rechnen, da es sich noch um "gregorianische" Größen handelt.
     // Die Umrechnung beginnt erst später in der Berechnung des JDs.
     uint16_t years = year; // Intervall: [0; 2099] negative Jahreszahlen werden nicht berücksichtigt!
-    uint8_t months = uabrnd(dayFractions / 30.6001); // Intervall: [0; 11] (Ausnahme von obiger Regel: Liefert hinreichend genaue Angaben des Monats)
+    uint8_t months = getMonthOfYear(year, exint(dayFractions)); //uabrnd(dayFractions / 30.6001); // Intervall: [0; 11] (Ausnahme von obiger Regel: Liefert hinreichend genaue Angaben des Monats)
     uint16_t days = getDayOfMonth(year, exint(dayFractions)); // Intervall: [0; 365/366]
     uint8_t hours = exint(hour_frac); // Intervall: [0; 24)
     uint8_t minutes = exint(minute_frac); // Intervall: [0; 60)
@@ -104,9 +140,11 @@ double computeJD(int year, double dayFractions) {
     // Im Fall (month > 2) können alle Werte ohne Änderungen weiterverwendet werden.
     // ****************************************************************************************
     
+    plot((int)months)
+    plot(days)
+
     // ****************************************************************************************
     ++months; // Monate um 1 inkrementieren, da Julian Calender 0-basierte Monatsindexierung führt
-    // ****************************************************************************************
     // Quelle: [NOCH EINFÜGEN]
     // ****************************************************************************************
     // Berechnung nach der unter QUELLE angegebenen Formel durchführen. Minuten bis Mikrosekunden
