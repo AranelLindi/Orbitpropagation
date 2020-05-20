@@ -4,37 +4,40 @@
 #include <cstdint>
 #include <iostream>
 
+// eigener Code
+#include "calendar.h"
+
 
 #define plot(x) std::cout << x << std::endl;
 
 
 // GLOBALE VARIABLEN
+static const std::array<uint8_t, 12> days_month = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}; // Array das gregorianischen Kalender repräsentiert. Aufrufender Code
+    // kann Array klonen und ggf. bei Schaltjahr anpassen.
 
-const std::array<uint8_t, 12> days_month = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}; // Array mit 12 Felder die den Monaten entsprechen und mit
-// Anzahl Tagen gefüllt sind. Wird für Monats- und Tagesberechnung benötigt.
 
 
 // INLINE FUNKTIONEN
 
 // Gibt abgerundete Zahl eines Double (nur unsigned) zurück.
-inline int uabrnd(double decimal) { 
+inline int Calendar::rnddown(double decimal) { 
     return static_cast<int>(decimal);
 }
 
 // Gibt aufgerundete Zahl eines Double (nur unsigned) zurück.
-inline int uaufrnd(double decimal) {
-    return static_cast<int>(std::ceil(decimal));
+inline int Calendar::rndup(double decimal) {
+    return static_cast<int>(std::trunc(decimal));
 }
 
 // Liefert Nachkommastellen (0.xx..) für T (float -od.- double) zurück.
-template <typename T> inline double exfrac(double decimal) {
+template <typename T> inline double Calendar::getfrac(double decimal) {
     double integral = 0;
     double fractional = modf(decimal, &integral);
     return static_cast<T>(fractional);
 }
 
-// Extract Number, gibt den Ganzzahlanteil eines Double zurück.
-inline int exint(double decimal) {
+// Gibt den Ganzzahlanteil eines Double zurück.
+inline int Calendar::getint(double decimal) {
     double integral = 0;
     double fractional = modf(decimal, &integral);
     return static_cast<int>(integral);
@@ -43,7 +46,16 @@ inline int exint(double decimal) {
 
 // HILFSFUNKTIONEN
 
-bool checkforLeapYear(uint16_t year) {
+// Noch nicht ganz brauchbar: Erfordert als Eingabe das Jahr und keine Julian Day Fraction
+ bool Calendar::checkforLeapYear_julian(uint16_t year) {
+    // Jahr ist nach julianischem Kalender Schaltjahr, wenn...
+    // Jahr durch 4 teilbar ist:
+    return (year % 4 == 0);
+}
+
+
+// Prüft ob übergebenes Jahr nach gregorianischem Kalender ein Schaltjahr ist (nur A.C.)
+bool Calendar::checkforLeapYear_gregorian(uint16_t year) {
     // Schaltjahr-Regel für gregorianischen Kalender:
     // 1. Regel: Jahr ist durch 4 teilbar -> Schaltjahr
     // 2. Regel: Jahr ist durch 100 teilbar -> KEIN Schaltjahr
@@ -61,17 +73,18 @@ bool checkforLeapYear(uint16_t year) {
 
     // Aussagenbeschreibung: Jahr ist ein Schaltjahr genau dann wenn...
     // Jahr durch 4 teilbar ist UND ( es NICHT durch 100 teilbar ist ODER es durch 400 teilbar ist)    
-    return ( A && ( !B | C ) ); // WICHTIG: kein && -oder- || verwenden - ALLE drei Ausdrücke MÜSSEN 
+    return ( A && ( !B | C ) ); // WICHTIG: kein || verwenden - ALLE beiden Ausdrücke der Oder-Klammer MÜSSEN 
     // ausgewertet werden um festzustellen ob das Jahr ein Schaltjahr ist, da die Regeln aufeinander aufbauen!
+    // Wenn das Jahr nicht durch 4 teilbar ist, brauchen auch die beiden anderen Regeln nicht angeschaut zu werden
 }
 
 // Gibt abhängig von Schaltjahr/Nicht-Schaltjahr und dem Tag des Jahres, den Tag des Monats zurück (z.B. 206 Day of Year = 24. Tag des Monats Juli)
-int getDayOfMonth(uint16_t year, uint16_t days) {   
+uint16_t Calendar::getDayOfMonth(uint16_t year, uint16_t days) {   
     // Array klonen, ist dann auch nicht mehr const
     std::array<uint8_t, 12> sub_days_month = days_month;
 
     // Auf Schaltjahr prüfen
-    bool leapyear = checkforLeapYear(year);
+    bool leapyear = checkforLeapYear_gregorian(year);
 
     if( leapyear ) {
         if (days > 366) return 0; // Bei zu vielen Tagen 0 zurückgeben, da sonst in Schleife Overflow verursacht würde
@@ -97,12 +110,12 @@ int getDayOfMonth(uint16_t year, uint16_t days) {
 }
 
 // Liefert für die Anzahl der Tage des Jahres in Abhängigkeit von Schaltjahr/Nicht-Schaltjahr, den Monat in dem sich der Tag befindet (z.B. für 206 Day of Year = Monat Juli)
-int getMonthOfYear(uint16_t year, uint16_t days) {
+uint8_t Calendar::getMonthOfYear(int16_t year, uint16_t days) {
     // Array klonen, ist dann auch nicht mehr const
     std::array<uint8_t, 12> sub_days_month = days_month;
     
     // Auf Schaltjahr prüfen
-    bool leapyear = checkforLeapYear(year);
+    bool leapyear = checkforLeapYear_gregorian(year);
 
     if( leapyear ) {
         if (days > 366) return 0; // Bei zu vielen Tagen 0 zurückgeben, da sonst in Schleife Overflow verursacht würde
@@ -131,62 +144,39 @@ int getMonthOfYear(uint16_t year, uint16_t days) {
 }
 
 // Berechnet die Julian Day Number entsprechend des Jahres und des Tagebruchs.
-double computeJD(int year, double dayFractions) {
-    // ****************************************************************************************
-    // Ab 'Stunde' die Gleitkommazahlen speichern für Umrechnungen:
-    double hour_frac = exfrac<double>(dayFractions) * 24; 
-    double minute_frac = exfrac<double>(hour_frac) * 60;
-    float second_frac = exfrac<float>(minute_frac) * 60; // ab hier (second_frac bis microsecond_frac) wirkt sich größere Genauigkeit
-    // durch mehr Nachkommastellen in 'double' nur noch marginal aus. Es wird stattdessen 'float' verwendet um Speicher zu sparen.
-    float milisecond_frac = exfrac<float>(second_frac) * 100; // 100 ms = 1 s
-    float microsecond_frac = exfrac<float>(milisecond_frac) * 100; // 100 mikrosec = 1 ms 
-    // ****************************************************************************************
-
-    // ****************************************************************************************
-    // Alle Variablen in Ganzzahltypen umwandeln:
-    //  Wichtig: Hier noch nicht mit Julianischen Konstanten rechnen, da es sich noch um "gregorianische" Größen handelt.
-    //  Die Umrechnung beginnt erst später in der Berechnung des JDs.
-    uint8_t months = getMonthOfYear(year, exint(dayFractions)); //uabrnd(dayFractions / 30.6001); // Intervall: [0; 11] (Ausnahme von obiger Regel: Liefert hinreichend genaue Angaben des Monats)
-    uint16_t days = getDayOfMonth(year, exint(dayFractions)); // Intervall: [0; 365/366]
-    uint8_t hours = exint(hour_frac); // Intervall: [0; 24)
-    uint8_t minutes = exint(minute_frac); // Intervall: [0; 60)
-    uint8_t seconds = exint(second_frac); // Intervall: [0; 60)
-    uint8_t miliseconds = exint(milisecond_frac); // Intervall: [0; 100)
-    uint8_t microseconds = exint(microsecond_frac); // Intervall: [0; 100)
-    // ****************************************************************************************
-
+double Calendar::computeJD(int16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint8_t milisecond, uint8_t microsecond) {
     // ****************************************************************************************
     // Fallunterscheidung:
     //  Ist eine Umsortierung der Monate Januar und Februar ans Ende des Jahres um Probleme
     //  durch die Verkürzung des Februars zu umgehen. Ein eventueller Schalttag ist damit stets
     //  der letzte Tag des Jahres
-    if (months <= 2) { 
-        year--; months += 12; 
+    if (month <= 2) { 
+        year--; month += 12; 
     }
     //  Im Fall (month > 2) können alle Werte ohne Änderungen weiterverwendet werden.
     // ****************************************************************************************
 
     // ****************************************************************************************
     // Einzelne Summen berechnen: (Quelle siehe Funktionsende!)
-    uint16_t _A = year - exint( ( 12 - months ) / 10 ); // Intervall bis 65.535
-    uint8_t _M = ( months - 3 ) % 12; // Intervall: [0; 11]
+    uint16_t _A = year - getint( ( 12 - month ) / 10 ); // Intervall bis 65.535
+    uint8_t _M = ( month - 3 ) % 12; // Intervall: [0; 11]
 
-    uint32_t y = exint( 365.25 * ( _A + 4712 ) ); // Intervall bis 25.657.716
-    uint16_t d = exint( ( 30.6001 * _M ) + 0.5 ); // Intervall bis 428 
+    uint32_t y = getint( 365.25 * ( _A + 4712 ) ); // Intervall bis 25.657.716
+    uint16_t d = getint( ( 30.6001 * _M ) + 0.5 ); // Intervall bis 428 
 
-    uint32_t N = y + d + days + 59; // Intervall: bis 25.658.569
+    uint32_t N = y + d + day + 59; // Intervall: bis 25.658.569
 
-    uint16_t g = exint( exint( ( _A / 100 ) + 49 ) * 0.75 ) - 38; // Intervall bis 490
+    uint16_t g = getint( getint( ( _A / 100 ) + 49 ) * 0.75 ) - 38; // Intervall bis 490
     // ****************************************************************************************
 
     // ****************************************************************************************
     // Nachkommastellen erstellen:
     //  Stunden bis Mikrosekunden
-    float frac =    hours / 24.0 +
-                    minutes / ( 24.0 * 60.0 ) +
-                    seconds / ( 24.0 * 60.0 * 60.0 ) +
-                    miliseconds / ( 24.0 * 60.0 * 60.0 * 100.0 ) +
-                    microseconds / ( 24.0 * 60.0 * 60.0 * 100.0 * 100.0 )
+    float frac =    hour / 24.0 +
+                    minute / ( 24.0 * 60.0 ) +
+                    second / ( 24.0 * 60.0 * 60.0 ) +
+                    milisecond / ( 24.0 * 60.0 * 60.0 * 100.0 ) +
+                    microsecond / ( 24.0 * 60.0 * 60.0 * 100.0 * 100.0 )
                     ;
     // ****************************************************************************************
 
@@ -201,16 +191,46 @@ double computeJD(int year, double dayFractions) {
     // von mir hinzugefügt. Darauf achten: Ab Sekunde ist Umrechnungsfaktor 100, nicht 60!
 
     /*
-        QUELLE: Kenneth R. Lang. 1999. Astrophysical Formulae (3. Aufl)., Berlin, Deutschland. S. 72/73 
+    *
+    *     QUELLE: Kenneth R. Lang. 1999. Astrophysical Formulae (3. Aufl)., Berlin, Deutschland. S. 72/73 
+    * 
     */
     return JD;
-}    
+}
 
-int getUTTime(void) { return 0; } // Noch zu implementieren. Sie unten!
+// Berechnet das Datum im julianischen Kalender als Julian Day Number mit Tagesbruch (Fraction)
+double Calendar::computeJD(int16_t year, double dayFraction) {
+    long int A, B;
+    A = 0;
+    B = 0;
 
-double computeGMST(double jd) {
+    year--;
+    A = static_cast<long int>( year / 100 );
+    B = 2 - A + static_cast<long int>( A / 4 );
+
+    long double JD =    static_cast<long int>( 365.25 * year ) +
+                        static_cast<long int>( 30.6001 * 14 ) +
+                        1720994.5 +
+                        B +
+                        dayFraction
+                        ;
+
+    /*
+    *
+    *  QUELLE: https://www.celestrak.com/columns/v02n02/
+    * 
+    */
+
+
+    return JD;
+}
+
+
+
+
+double Calendar::computeGMST(double jd) {
     // (1) Using the Julian date, JD, and the universal time, UT, in hours, calculate T, the number of centuries from J2000
-    double T = (jd + getUTTime() / 24 - 2451545.0) / 36525;
+    //double T = (jd + getUTTime() / 24 - 2451545.0) / 36525;
     // (2) Calculate the mean longitude corrected for aberration, L; the mean
     // anomaly, G; the ecliptic longitude, lambda; and the obliquity of the ecliptic, e:
 
@@ -219,12 +239,25 @@ double computeGMST(double jd) {
     */
 
 
+    float hour_frac = getfrac<float>( jd) ;
 
+    float T = ( jd + ( hour_frac / 24 ) - 2451545.0 ) / 36525;
 
+    float L = 280.460 + 36000.770 * T;
 
-   return 0;
+    float G = 357.528 + 35999.050 * T;
+
+    float lambda = L + 1.915 * sinf( G ) + 0.020 * sinf( 2 * G );
+
+    float e = 23.4393 - 0.01300 * T;
+
+    float E = -1.915 * sinf( G ) - 0.020 * sinf( 2 * G ) + 2.466 * sinf( 2 * lambda ) - 0.053 * sinf( 4 * lambda );
+
+    float GHA = 15 * hour_frac - 180 * E;
+
+    float delta = asinf( sinf( e ) * sinf( lambda ) );
+
+    float SD = 0.267 / ( 1 - 0.017 * cosf( G ) );
+
+    return SD;
 }
-
-//GeocentricCoordinate convertECItoGeocentric(const ECICoordinate& eciCoord, double jd);
-
-//GeodeticCoordinate convertECItoGeodetic(const ECICoordinate& eciCoord, double jd);
