@@ -1,6 +1,4 @@
 #include "SGP4Propagator.h"
-#include <iostream>
-#include <cmath>
 
 /* -------------------------- ECI Coordinate ----------------------------- */
 

@@ -1,6 +1,10 @@
 #ifndef CALENDAR_H
 #define CALENDAR_H
 
+// Standartbibliothek
+#include <cmath>
+#include <array>
+#include <iostream>
 #include <cstdint> // Definitionen für Integer-Typen
 
 // Liefert verschiedene Kalenderoperationen.

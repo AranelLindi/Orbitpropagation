@@ -1,8 +1,4 @@
-// Standartbibliothek
-#include <cmath>
-#include <array>
-#include <cstdint>
-#include <iostream>
+
 
 // eigener Code
 #include "calendar.h"

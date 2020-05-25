@@ -1,6 +1,11 @@
 #ifndef _sgp4_sgp4Propagator_
 #define _sgp4_sgp4Propagator_
 
+// Standartbibliotheken
+#include <iostream>
+#include <cmath>
+
+// eigener Code
 #include "../TLEinterpreter/TLE.h"
 
 // -------------------------- structure declarations ----------------------------
