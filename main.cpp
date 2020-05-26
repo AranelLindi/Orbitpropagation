@@ -2,16 +2,15 @@
 #include <iostream>
 #include <algorithm>
 
-#include "TLEinterpreter/TLE.h"
 #include "TLEinterpreter/process.h"
 #include "SGP4Propagator/SGP4Propagator.h"
 #include "calendar.h"
-
+#include "TLEinterpreter/main.h"
 
 
 int main(void) {
     
-    auto test = readTlesFromFile("calculations.txt");
+    auto test = readTlesFromFile("SONATE.txt");
 
 
 
@@ -22,4 +21,4 @@ int main(void) {
     }
 
     return 0;
-}
+    }
