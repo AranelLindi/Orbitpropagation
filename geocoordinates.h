@@ -4,18 +4,26 @@
 #include "SGP4Propagator/SGP4Propagator.h"
 
 // Basisklasse für Koordinatenobjekte
-struct BaseCoordinate {
+struct BaseCoordinate
+{
     double latitude;
     double longitude;
     double heigth;
+
+    void print(void);
 };
 
-struct GeocentricCoordinate : BaseCoordinate {};
-struct GeodeticCoordinate : BaseCoordinate {};
+struct GeocentricCoordinate : BaseCoordinate
+{
+    void print(void);
+};
+struct GeodeticCoordinate : BaseCoordinate
+{
+    void print(void);
+};
 
-GeocentricCoordinate convertECItoGeocentric(const ECICoordinate& eciCoord, double jd);
+GeocentricCoordinate convertECItoGeocentric(const ECICoordinate &eciCoord, double jd);
 
-GeodeticCoordinate convertECItoGeodetic(const ECICoordinate& eciCoord, double jd);
-
+GeodeticCoordinate convertECItoGeodetic(const ECICoordinate &eciCoord, double jd);
 
 #endif // GeoCoordinates.h

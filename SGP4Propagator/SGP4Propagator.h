@@ -7,7 +7,7 @@
 
 // eigener Code
 #include "../TLEinterpreter/TLE.h"
-#include "../TLEinterpreter/process.h"
+//#include "../TLEinterpreter/process.h"
 
 // -------------------------- structure declarations ----------------------------
 
@@ -47,7 +47,7 @@ public:
 	{
 		//set the TLE to the new value
 		this->tle = _tle;
-
+		
 		//mark initialization of near earth constant as NOT done
 		neConstsInitialized = false;
 	}
