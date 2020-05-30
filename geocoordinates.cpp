@@ -12,13 +12,15 @@ void BaseCoordinate::print(void)
 }
 
 // Ausgabe Geodetische Koordinate:
-void GeodeticCoordinate::print(void) {
+void GeodeticCoordinate::print(void)
+{
     std::cout << "GeodeticCoordinate:";
     BaseCoordinate::print();
 }
 
 // Ausgabe Geozentrische Koordinate:
-void GeocentricCoordinate::print(void) {
+void GeocentricCoordinate::print(void)
+{
     std::cout << "GeocentricCoordinate:";
     BaseCoordinate::print();
 }

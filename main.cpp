@@ -1,5 +1,11 @@
 #include "orbitpropagation.h" // HEADER
 
+// Standartbibliotheken (werden hier anstatt im Header included, da dieses File nicht zum Projekt gehört, sondern nur die temporärer Ausführung sicherstellt.)
+#include <iostream>
+#include <algorithm>
+#include <cstdint>
+#include <map>
+
 // ###############################
 // ---------Aufgabe 2.1-----------
 // ###############################

@@ -204,8 +204,8 @@ double Calendar::computeGMST(double jd)
     double jd_midnight = 0;
 
     //double delta_t = getfrac<double>(jd+0.5);
-    double delta_t = modf((jd+0.5), &jd_midnight);
-    jd_midnight = jd - delta_t;                      
+    double delta_t = modf((jd + 0.5), &jd_midnight);
+    jd_midnight = jd - delta_t;
 
     // Formel aus (2)
     double d_u = jd - 2451545.0;
@@ -218,7 +218,6 @@ double Calendar::computeGMST(double jd)
     double w_e = 7.29211510 * pow(10, -5);
     double theta_del_t = w_e * delta_t * 86400;
     double theta_t = fmod(theta_0 + theta_del_t, 2 * M_PI);
-
 
     return theta_t; // Genauigkeit passt mir noch nicht!
 

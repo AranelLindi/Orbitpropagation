@@ -12,23 +12,24 @@ struct Calendar
 {
 
     // Inline-Funktionen (gehören komplett in den Header, da Compiler diese ggf sofort ersetzt und nicht nach weiteren Deklarationen z.B. in .cpp-Files sucht! WICHTIG!)
-    static inline int rnddown(double decimal) // abrunden
+    // ------->temporär deaktiviert, da sie nicht in Calendar.cpp gebraucht werden. Entweder in anderes File auslagern oder entfernen!
+    /*static inline int rnddown(double decimal) // abrunden
     {
         return static_cast<int>(decimal);
-    }
+    }*/
 
-    static inline int rndup(double decimal) // aufrunden
+    /*static inline int rndup(double decimal) // aufrunden
     {
         return static_cast<int>(std::trunc(decimal));
-    }
+    }*/
 
-    template <typename T>                                  // nur 'float' od. 'double' für T einsetzen!
+    /*template <typename T>                        // nur 'float' od. 'double' für T einsetzen!
     static inline double getfrac(double decimal) // Nachkommastellen einer Zahl extrahieren
     {
         double integral = 0;
         double fractional = modf(decimal, &integral);
         return static_cast<T>(fractional);
-    }
+    }*/
 
     static inline int getint(double decimal) // Ganzzahlenteil einer Gleitkommazahl zurückgeben
     {
