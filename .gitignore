@@ -1,3 +1,4 @@
+# CMake
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
@@ -14,3 +15,6 @@ build
 # VSCode
 .vscode/
 .ionide/
+
+# Binary
+Orbitpropagation

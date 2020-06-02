@@ -2,7 +2,7 @@
 #define GEOCOORDINATES_H
 
 #include "../SGP4Propagator/SGP4Propagator.h"
-#include "../Calendar/calendar.h"
+#include "../calendars/calendar.h"
 
 // Basisklasse für Koordinatenobjekte
 struct BaseCoordinate
