@@ -201,30 +201,51 @@ double Calendar::computeJD(int16_t year, double dayFraction)
 // Berechnet für ein Julian Day Fraction die entsprechende GMST (Greenwich Mean Sidereal Time) in radian
 double Calendar::computeGMST(double jd)
 {
-    double jd_midnight = 0;
-
-    //double delta_t = getfrac<double>(jd+0.5);
-    double delta_t = modf((jd + 0.5), &jd_midnight);
-    jd_midnight = jd - delta_t;
-
-    // Formel aus (2)
-    double d_u = jd - 2451545.0;
-    double T_u = d_u / 36525;
-    double gmst_0 = 24110.54841 + 8640184.812866 * T_u + 0.093104 * pow(T_u, 2) - 6.2e-6 * pow(T_u, 3); // in [deg]
-
-    double theta_0 = fmod((1 + gmst_0 / 86400.0) * 2 * M_PI, 2 * M_PI);
-
-    // Winkel für delta_t berechnen:
-    double w_e = 7.29211510 * pow(10, -5);
-    double theta_del_t = w_e * delta_t * 86400;
-    double theta_t = fmod(theta_0 + theta_del_t, 2 * M_PI);
-
-    return theta_t; // Genauigkeit passt mir noch nicht!
-
     /*
-    *
-    *  QUELLE: (1) - https://www.celestrak.com/columns/v02n01/
-    *          (2) - Kenneth R. Lang, Astrophysical Formulae, S. 80, Springer Verlag
-    * 
+    * Wird nach folgender Formel berechnet:
+    * theta_g(T) = theta_g(0 h) + omega_e * T
+    * theta_g(0 h) = 24110.54841s + 8640184.812866s * T_u + 0.093104s * T_u² - 0.0000062s * T_u³
+    * (Umrechnung in rad nötig! 24 h = 2*pi, exakt: 23 h 56 min 4,1 s)
     */
+
+    const float omega_e = 7.29211510e-5f; // [rad/s] Rotationsgeschwindigkeit der Erde
+
+    uint32_t temp = 0; // temporäre Vaiable
+
+    double JD0h = 0;    // JD um 0 UTC
+    double theta_g = 0; // GMST um 0 UTC
+    double T = 0;       // Umlaufdauer
+    double gmst = 0;    // GMST in rad
+
+    float T_u = 0; // Julianisches Jahrhundert
+
+    // ggf JD umrechnen, da der Tag um 12 Stunden verschoben ist:
+    temp = static_cast<uint32_t>(jd);
+
+    if ((temp + 0.5) > jd)
+        JD0h = temp - 0.5;
+    else
+        JD0h = temp + 0.5;
+
+    // Julianisches Jahrhundert berechnen:
+    T_u = (JD0h - 2451545.0) / 36525.0;
+
+    theta_g = 24110.54841f + T_u * (8640184.812866 + T_u * (0.093104f - 0.0000062f * T_u));
+
+    theta_g = theta_g * (M_PI / 43082.05f); // GMST in [rad] Anmerkung: Rotationsperiode der Erde ist nicht exakt 24 h, sondern 23 h 56 min 4,1 s. Das in Sekunden umgerechnet und die Hälfte genügt, um h in rad umzurechnen.
+
+    // Intervallprüfung: [-2*PI; 2*PI]
+    theta_g = fmod(theta_g, 2 * M_PI);
+
+    // Zeit seit 0h UTC berechnen:
+    T = (jd - JD0h) * 24 * 3600;
+    gmst = theta_g + omega_e * T;
+
+    // Intervallprüfung: [0; 2*PI]
+    gmst = fmod(gmst, 2 * M_PI);
+
+    if (gmst < 0)
+        gmst += (2 * M_PI);
+
+    return gmst;
 }

@@ -97,11 +97,16 @@ int main(void)
 
     Calendar ca;
 
-    double jd1 = ca.computeJD(2020, 05, 30, 22, 47, 0, 0, 0);
+    //double jd1 = ca.computeJD(2020, 05, 30, 22, 47, 0, 0, 0);
 
-    printf(" %f ", jd1);
+    //printf(" %f ", jd1);
 
-    double gmst1 = ca.computeGMST(jd1);
+    //double gmst1 = ca.computeGMST(jd1);
 
-    printf("\n\n %f\n", gmst1);
+    //printf("\n\n %f\n", gmst1);
+
+    double jd = ca.computeGMST(2458982.5);
+
+    std::cout.precision(15);
+    std::cout << jd << std::endl;
 }
