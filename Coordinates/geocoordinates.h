@@ -1,8 +1,8 @@
 #ifndef GEOCOORDINATES_H
 #define GEOCOORDINATES_H
 
-#include "SGP4Propagator/SGP4Propagator.h"
-#include "calendar.h"
+#include "../SGP4Propagator/SGP4Propagator.h"
+#include "../Calendar/calendar.h"
 
 // Basisklasse für Koordinatenobjekte
 struct BaseCoordinate
@@ -26,7 +26,7 @@ struct GeodeticCoordinate : BaseCoordinate
 struct CoordinateConvertion
 {
     // Globale Konstante, wird in beiden Funktionen benötigt:
-    static const float Re = 6378.137; // [km] Radius der Erde
+    const float Re = 6378.137; // [km] Radius der Erde
     
 
     GeocentricCoordinate convertECItoGeocentric(const ECICoordinate &eciCoord, double jd);
