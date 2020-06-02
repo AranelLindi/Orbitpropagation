@@ -8,7 +8,7 @@ Stellt Kalendaroperationen bereit. Unter anderem: **Umwandlung eines Datums aus 
 Stellt Container für verschiedene Koordinatentypen bereit (**GeocentricCoordinate** und **GeodeticCoordinate**) und bietet auch Funktionen, die in Abhängigkeit einer *Julian Day Number (JDN)* die Koordinatensystem ineinander umrechnen.
 
 ## **SGP4Propagator/** SGP4Propagator.cpp ##
-Bietet einen **ECICoordinate**-Container für die Darstellung von Koordinaten an sowie in Verbindung mit einem TLE Reader / Interpreter eine Funktion, die abhängig von der Epoche die Position und Geschwindigkeit eines Satelliten mithilfe eines TLE Datensatzes berechnet.
+Bietet einen **ECICoordinate**-Container für die Darstellung von Koordinaten an, sowie in Verbindung mit einem TLE Reader / Interpreter eine Funktion, die abhängig von der Epoche die Position und Geschwindigkeit eines Satelliten mithilfe eines TLE Datensatzes berechnet.
 
 ## main.cpp ##
 Muss nicht in neue Projekte eingebunden werden, bietet aber eine beispielhafte Darstellung der Implementierung.
