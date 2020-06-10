@@ -6,7 +6,7 @@
 #include <cmath>
 
 // eigener Code
-#include "../TLEinterpreter/TLE.h"
+#include "../TLEinterpreter/tle/TLE.h"
 //#include "../TLEinterpreter/process.h"
 
 // -------------------------- structure declarations ----------------------------
