@@ -10,22 +10,21 @@ void ECICoordinate::print()
 /* ------------------------ SGP4 Propagator ----------------------------- */
 SGP4Propagator::SGP4Propagator()
 {
-
 }
 
 void SGP4Propagator::calculatePositionAndVelocity(int32_t secsAfterEpoch, ECICoordinate &satPos,
-		ECICoordinate &satVel)
+												  ECICoordinate &satVel)
 {
 	/**
 	 * Local Variables needed during calculation.
 	 * Static to avoid stack overflow on embedded processors
 	 */
 	static double timeSinceEpoch, QOMS2T, S, temp1, temp2, temp3, temp4, n_0, T, large_half_axis, perigee, a_1, delta_1,
-	a_0, delta_0, n_0dd, a_0dd, s_star, THETA, XI, BETA_0, ETA, C_1, C_2, C_3, C_4, C_5, D_2, D_3, D_4, M_DF,
-	w_DF, OMEGA_DF, delta_w, delta_M, M_p, w, e, OMEGA, a, IL, BETA, n, a_xN, IL_L, a_yNL, IL_T, a_yN, U,
-	DELTA_KEPLER, KEPLER, ecosE, esinE, e_L, p_L, r, rDOT, rfDOT, cosu, sinu, u, sin2u, cos2u, DELTA_r, DELTA_u,
-	DELTA_OMEGA, DELTA_i, DELTA_rDOT, DELTA_rfDOT, r_k, u_k, OMEGA_k, i_k, r_kDOT, rf_kDOT, M_x, M_y, M_z, N_x,
-	N_y, N_z, U_x, U_y, U_z, V_x, V_y, V_z, x, y, z, xdot, ydot, zdot;
+		a_0, delta_0, n_0dd, a_0dd, s_star, THETA, XI, BETA_0, ETA, C_1, C_2, C_3, C_4, C_5, D_2, D_3, D_4, M_DF,
+		w_DF, OMEGA_DF, delta_w, delta_M, M_p, w, e, OMEGA, a, IL, BETA, n, a_xN, IL_L, a_yNL, IL_T, a_yN, U,
+		DELTA_KEPLER, KEPLER, ecosE, esinE, e_L, p_L, r, rDOT, rfDOT, cosu, sinu, u, sin2u, cos2u, DELTA_r, DELTA_u,
+		DELTA_OMEGA, DELTA_i, DELTA_rDOT, DELTA_rfDOT, r_k, u_k, OMEGA_k, i_k, r_kDOT, rf_kDOT, M_x, M_y, M_z, N_x,
+		N_y, N_z, U_x, U_y, U_z, V_x, V_y, V_z, x, y, z, xdot, ydot, zdot;
 
 	static const double MIN_PER_DAY = 1440.0;
 	static const double SEC_PER_DAY = 86400.0;
@@ -36,16 +35,16 @@ void SGP4Propagator::calculatePositionAndVelocity(int32_t secsAfterEpoch, ECICoo
 	static const double AE = 1.0;
 
 	/* Get the WGS-84 constants */
-	static double const gm = 398600.5; //in [km^3/s^2]
-	static double const xkmper = 6378.137; //in [km]
+	static double const gm = 398600.5;									  //in [km^3/s^2]
+	static double const xkmper = 6378.137;								  //in [km]
 	static double const xke = 60.0 / sqrt(xkmper * xkmper * xkmper / gm); //in [1/min]
-	static double const ck2 = 0.5 * 0.00108262998905; //0.5 * J2
-	static double const a_30 = 0.00000253215306; //-J3
-	static double const ck4 = (-3.0 / 8.0) * (-0.00000161098761); //-3/8 * J4
+	static double const ck2 = 0.5 * 0.00108262998905;					  //0.5 * J2
+	static double const a_30 = 0.00000253215306;						  //-J3
+	static double const ck4 = (-3.0 / 8.0) * (-0.00000161098761);		  //-3/8 * J4
 
 	/* Avoid time independent processing by checking the TLE */
-	if (!neConstsInitialized) {
-
+	if (!neConstsInitialized)
+	{
 
 		/**
 		 * Will be changed if perigee < 156km == (q_0 - s)^4 (er)^4, see [2.0].
@@ -98,10 +97,14 @@ void SGP4Propagator::calculatePositionAndVelocity(int32_t secsAfterEpoch, ECICoo
 		 * If perigee below 156 km above earth, S and QOMS2T will be changed.
 		 */
 		//[2.0]
-		if (perigee < 156.0) {
-			if (perigee >= 98.0) {
+		if (perigee < 156.0)
+		{
+			if (perigee >= 98.0)
+			{
 				s_star = (a_0dd * (1.0 - tle.getEccentricity())) - S + AE;
-			} else {
+			}
+			else
+			{
 				s_star = (20.0 / xkmper) + AE;
 			}
 			/**
@@ -126,26 +129,19 @@ void SGP4Propagator::calculatePositionAndVelocity(int32_t secsAfterEpoch, ECICoo
 		//[3.3]
 		ETA = a_0dd * tle.getEccentricity() * XI;
 		//[3.4]
-		C_2 = QOMS2T * pow(XI, 4) * n_0dd * pow(1.0 - (ETA * ETA), -7.0 / 2.0)
-		* (a_0dd * (1.0 + (TOTHRD3 * ETA * ETA) + (4.0 * tle.getEccentricity() * ETA) + (tle.getEccentricity() * pow(ETA, 3.0)))
-				+ (TOTHRD3 * ((ck2 * XI) / (1 - (ETA * ETA))) * (-0.5 + (TOTHRD3 * THETA * THETA))
-						* (8.0 + (24.0 * ETA * ETA) + (3.0 * pow(ETA, 4.0)))));
+		C_2 = QOMS2T * pow(XI, 4) * n_0dd * pow(1.0 - (ETA * ETA), -7.0 / 2.0) * (a_0dd * (1.0 + (TOTHRD3 * ETA * ETA) + (4.0 * tle.getEccentricity() * ETA) + (tle.getEccentricity() * pow(ETA, 3.0))) + (TOTHRD3 * ((ck2 * XI) / (1 - (ETA * ETA))) * (-0.5 + (TOTHRD3 * THETA * THETA)) * (8.0 + (24.0 * ETA * ETA) + (3.0 * pow(ETA, 4.0)))));
 		//[3.5]
 		C_1 = tle.getBstar() * C_2;
 		//[3.6]
 		C_3 = (QOMS2T * pow(XI, 5.0) * a_30 * n_0dd * AE * sin(tle.getInclination())) / (ck2 * tle.getEccentricity());
 		//[3.7]
 		temp1 = (2.0 * ETA * (1.0 + (tle.getEccentricity() * ETA))) + (0.5 * tle.getEccentricity()) + (0.5 * pow(ETA, 3.0));
-		temp2 = (3.0 * (1.0 - (3.0 * THETA * THETA)))
-								* (1.0 + (TOTHRD3 * ETA * ETA) - (2 * tle.getEccentricity() * ETA) - (0.5 * tle.getEccentricity() * pow(ETA, 3.0)));
-		temp3 = (3.0 / 4.0) * (1.0 - (THETA * THETA))
-								* ((2.0 * ETA * ETA) - (tle.getEccentricity() * ETA) - (tle.getEccentricity() * pow(ETA, 3.0))) * cos(2 * tle.getArgumentOfPerigee());
+		temp2 = (3.0 * (1.0 - (3.0 * THETA * THETA))) * (1.0 + (TOTHRD3 * ETA * ETA) - (2 * tle.getEccentricity() * ETA) - (0.5 * tle.getEccentricity() * pow(ETA, 3.0)));
+		temp3 = (3.0 / 4.0) * (1.0 - (THETA * THETA)) * ((2.0 * ETA * ETA) - (tle.getEccentricity() * ETA) - (tle.getEccentricity() * pow(ETA, 3.0))) * cos(2 * tle.getArgumentOfPerigee());
 
-		C_4 = 2.0 * n_0dd * QOMS2T * pow(XI, 4.0) * a_0dd * (BETA_0 * BETA_0) * pow(1.0 - (ETA * ETA), -7.0 / 2.0)
-								* (temp1 - ((2.0 * ck2 * XI) / (a_0dd * (1.0 - (ETA * ETA)))) * (temp2 + temp3));
+		C_4 = 2.0 * n_0dd * QOMS2T * pow(XI, 4.0) * a_0dd * (BETA_0 * BETA_0) * pow(1.0 - (ETA * ETA), -7.0 / 2.0) * (temp1 - ((2.0 * ck2 * XI) / (a_0dd * (1.0 - (ETA * ETA)))) * (temp2 + temp3));
 		//[3.8]
-		C_5 = 2.0 * QOMS2T * pow(XI, 4.0) * a_0dd * (BETA_0 * BETA_0) * pow(1.0 - (ETA * ETA), -7.0 / 2.0)
-								* (1.0 + ((11.0 / 4.0) * ETA * (ETA + tle.getEccentricity())) + (tle.getEccentricity() * pow(ETA, 3.0)));
+		C_5 = 2.0 * QOMS2T * pow(XI, 4.0) * a_0dd * (BETA_0 * BETA_0) * pow(1.0 - (ETA * ETA), -7.0 / 2.0) * (1.0 + ((11.0 / 4.0) * ETA * (ETA + tle.getEccentricity())) + (tle.getEccentricity() * pow(ETA, 3.0)));
 		//[3.9]
 		D_2 = 4.0 * a_0dd * XI * (C_1 * C_1);
 		//[3.10]
@@ -168,16 +164,13 @@ void SGP4Propagator::calculatePositionAndVelocity(int32_t secsAfterEpoch, ECICoo
 	//--------------------------------------------------------------------------
 	//[4.1]
 	temp1 = (3.0 * ck2 * (-1.0 + (3.0 * THETA * THETA))) / (2.0 * a_0dd * a_0dd * pow(BETA_0, 3.0));
-	temp2 = (3.0 * ck2 * ck2 * (13.0 - (78.0 * THETA * THETA) + (137.0 * pow(THETA, 4.0))))
-							/ (16.0 * pow(a_0dd, 4.0) * pow(BETA_0, 7.0));
+	temp2 = (3.0 * ck2 * ck2 * (13.0 - (78.0 * THETA * THETA) + (137.0 * pow(THETA, 4.0)))) / (16.0 * pow(a_0dd, 4.0) * pow(BETA_0, 7.0));
 
 	M_DF = tle.getMeanAnomaly() + ((1.0 + temp1 + temp2) * (n_0dd * timeSinceEpoch));
 	//[4.2]
 	temp1 = (-3.0 * ck2 * (1.0 - (5.0 * THETA * THETA))) / (2.0 * a_0dd * a_0dd * pow(BETA_0, 4.0));
-	temp2 = (3.0 * ck2 * ck2 * (7.0 - (114.0 * THETA * THETA) + (395.0 * pow(THETA, 4.0)))) / (16.0 * pow(a_0dd, 4.0))
-							* (pow(BETA_0, 8.0));
-	temp3 = (5.0 * ck4 * (3.0 - (36.0 * THETA * THETA) + (49.0 * pow(THETA, 4.0))))
-							/ (4.0 * pow(a_0dd, 4.0) * pow(BETA_0, 8.0));
+	temp2 = (3.0 * ck2 * ck2 * (7.0 - (114.0 * THETA * THETA) + (395.0 * pow(THETA, 4.0)))) / (16.0 * pow(a_0dd, 4.0)) * (pow(BETA_0, 8.0));
+	temp3 = (5.0 * ck4 * (3.0 - (36.0 * THETA * THETA) + (49.0 * pow(THETA, 4.0)))) / (4.0 * pow(a_0dd, 4.0) * pow(BETA_0, 8.0));
 
 	w_DF = tle.getArgumentOfPerigee() + (temp1 + temp2 + temp3) * n_0dd * timeSinceEpoch;
 	//[4.3]
@@ -198,14 +191,17 @@ void SGP4Propagator::calculatePositionAndVelocity(int32_t secsAfterEpoch, ECICoo
 	 * If epoch perigee is less than 220 km, specific terms are
 	 * dropped/truncated.
 	 */
-	if (perigee < 220.0) {
+	if (perigee < 220.0)
+	{
 		//[4.6]
 		M_p = M_DF;
 		//[4.7]
 		w = w_DF;
 		//[4.9]
 		e = tle.getEccentricity() - (tle.getBstar() * C_4 * timeSinceEpoch);
-	} else {
+	}
+	else
+	{
 		//[4.6]
 		M_p = M_DF + delta_w + delta_M;
 		//[4.7]
@@ -215,31 +211,28 @@ void SGP4Propagator::calculatePositionAndVelocity(int32_t secsAfterEpoch, ECICoo
 	}
 
 	//[4.8]
-	OMEGA = OMEGA_DF
-			- ((21.0 / 2.0) * ((n_0dd * ck2 * THETA) / (a_0dd * a_0dd * BETA_0 * BETA_0)) * C_1 * timeSinceEpoch
-					* timeSinceEpoch);
+	OMEGA = OMEGA_DF - ((21.0 / 2.0) * ((n_0dd * ck2 * THETA) / (a_0dd * a_0dd * BETA_0 * BETA_0)) * C_1 * timeSinceEpoch * timeSinceEpoch);
 
 	/**
 	 * If epoch perigee is less than 220 km, specific terms are dropped/truncated.
 	 */
-	if (perigee < 220.0) {
+	if (perigee < 220.0)
+	{
 		//[4.10]
 		a = a_0dd * pow(1.0 - (C_1 * timeSinceEpoch), 2.0);
 		//[4.11]
 		IL = M_p + w + OMEGA + (n_0dd * TOTHRD3 * C_1 * timeSinceEpoch * timeSinceEpoch);
-	} else {
+	}
+	else
+	{
 		//[4.10]
-		a = a_0dd
-				* pow(
-						1.0 - (C_1 * timeSinceEpoch) - (D_2 * timeSinceEpoch * timeSinceEpoch)
-						- (D_3 * pow(timeSinceEpoch, 3.0)) - (D_4 * pow(timeSinceEpoch, 4.0)), 2.0);
+		a = a_0dd * pow(
+						1.0 - (C_1 * timeSinceEpoch) - (D_2 * timeSinceEpoch * timeSinceEpoch) - (D_3 * pow(timeSinceEpoch, 3.0)) - (D_4 * pow(timeSinceEpoch, 4.0)), 2.0);
 		//[4.11]
 		temp1 = TOTHRD3 * C_1 * timeSinceEpoch * timeSinceEpoch;
 		temp2 = (D_2 + (2.0 * C_1 * C_1)) * pow(timeSinceEpoch, 3.0);
 		temp3 = 0.25 * ((3.0 * D_3) + (12.0 * C_1 * D_2) + (10.0 * C_1 * C_1 * C_1)) * pow(timeSinceEpoch, 4.0);
-		temp4 = (1.0 / 5.0)
-								* ((3.0 * D_4) + (12.0 * C_1 * D_3) + (6.0 * D_2 * D_2) + (30.0 * C_1 * C_1 * D_2)
-										+ (15.0 * pow(C_1, 4.0))) * pow(timeSinceEpoch, 5.0);
+		temp4 = (1.0 / 5.0) * ((3.0 * D_4) + (12.0 * C_1 * D_3) + (6.0 * D_2 * D_2) + (30.0 * C_1 * C_1 * D_2) + (15.0 * pow(C_1, 4.0))) * pow(timeSinceEpoch, 5.0);
 
 		IL = M_p + w + OMEGA + (n_0dd * (temp1 + temp2 + temp3 + temp4));
 	}
@@ -274,9 +267,9 @@ void SGP4Propagator::calculatePositionAndVelocity(int32_t secsAfterEpoch, ECICoo
 	/**
 	 * Fixed according to STR#3 revisited.
 	 */
-	while (fabs(DELTA_KEPLER) >= 1E-12 && counter < 10) {
-		DELTA_KEPLER = ((U - (a_yN * cos(KEPLER)) + (a_xN * sin(KEPLER)) - KEPLER)
-				/ ((-a_yN * sin(KEPLER)) - (a_xN * cos(KEPLER)) + 1.0));
+	while (fabs(DELTA_KEPLER) >= 1E-12 && counter < 10)
+	{
+		DELTA_KEPLER = ((U - (a_yN * cos(KEPLER)) + (a_xN * sin(KEPLER)) - KEPLER) / ((-a_yN * sin(KEPLER)) - (a_xN * cos(KEPLER)) + 1.0));
 		KEPLER = KEPLER + DELTA_KEPLER;
 		counter++;
 	}
@@ -325,8 +318,7 @@ void SGP4Propagator::calculatePositionAndVelocity(int32_t secsAfterEpoch, ECICoo
 	//--------------------- give the osculating quantities ---------------------
 	//--------------------------------------------------------------------------
 	//[7.0]
-	r_k = (r * (1.0 - (TOTHRD3 * ck2 * (sqrt(1.0 - (e_L * e_L)) / (p_L * p_L))) * ((3.0 * THETA * THETA) - 1.0)))
-							+ DELTA_r;
+	r_k = (r * (1.0 - (TOTHRD3 * ck2 * (sqrt(1.0 - (e_L * e_L)) / (p_L * p_L))) * ((3.0 * THETA * THETA) - 1.0))) + DELTA_r;
 
 	//[7.1]
 	u_k = u + DELTA_u;

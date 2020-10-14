@@ -7,27 +7,33 @@
 // Basisklasse für Koordinatenobjekte
 struct BaseCoordinate
 {
-    double latitude;
-    double longitude;
-    double heigth;
+    const double latitude;
+    const double longitude;
+    const double heigth;
 
-    void print(void);
+    BaseCoordinate(double _latitude, double _longitude, double _heigth) : latitude(_latitude), longitude(_longitude), heigth(_heigth) {}
+
+    void print(void) const;
 };
 
 struct GeocentricCoordinate : BaseCoordinate
 {
-    void print(void);
+
+    GeocentricCoordinate(double _latitude, double _longitude, double _heigth) : BaseCoordinate(_latitude, _longitude, _heigth) {}
+
+    void print(void) const;
 };
 struct GeodeticCoordinate : BaseCoordinate
 {
-    void print(void);
+    GeodeticCoordinate(double _latitude, double _longitude, double _heigth) : BaseCoordinate(_latitude, _longitude, _heigth) {}
+
+    void print(void) const;
 };
 
 struct CoordinateConvertion
 {
     // Globale Konstante, wird in beiden Funktionen benötigt:
     const float Re = 6378.137; // [km] Radius der Erde
-    
 
     GeocentricCoordinate convertECItoGeocentric(const ECICoordinate &eciCoord, double jd);
 

@@ -23,17 +23,9 @@ struct Calendar
         return static_cast<int>(std::trunc(decimal));
     }*/
 
-    /*template <typename T>                        // nur 'float' od. 'double' für T einsetzen!
-    static inline double getfrac(double decimal) // Nachkommastellen einer Zahl extrahieren
-    {
-        double integral = 0;
-        double fractional = modf(decimal, &integral);
-        return static_cast<T>(fractional);
-    }*/
-
     static inline int getint(double decimal) // Ganzzahlenteil einer Gleitkommazahl zurückgeben
     {
-        double integral = 0;
+        double integral{0.0};
         double fractional = modf(decimal, &integral);
         return static_cast<int>(integral);
     }

@@ -4,18 +4,18 @@
 #define plot(x) std::cout << x << std::endl; // nur für Debugging-Zwecke
 
 // GLOBALE VARIABLEN
-static const std::array<uint8_t, 12> days_month = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}; // Array das gregorianischen Kalender repräsentiert. Aufrufender Code
+static const constexpr std::array<uint8_t, 12> days_month = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}; // Array das gregorianischen Kalender repräsentiert. Aufrufender Code
     // kann Array klonen und ggf. bei Schaltjahr anpassen.
 
 // HILFSFUNKTIONEN
 
 // Noch nicht ganz brauchbar: Erfordert als Eingabe das Jahr und keine Julian Day Fraction
-bool Calendar::checkforLeapYear_julian(uint16_t year)
+/*bool Calendar::checkforLeapYear_julian(uint16_t year)
 {
     // Jahr ist nach julianischem Kalender Schaltjahr, wenn...
     // Jahr durch 4 teilbar ist:
     return (year % 4 == 0);
-}
+}*/
 
 // Prüft ob übergebenes Jahr nach gregorianischem Kalender ein Schaltjahr ist (nur A.C.)
 bool Calendar::checkforLeapYear_gregorian(uint16_t year)
@@ -30,10 +30,7 @@ bool Calendar::checkforLeapYear_gregorian(uint16_t year)
     // B = Jahr ist durch 100 teilbar
     // C = Jahr ist durch 400 teilbar
 
-    bool A, B, C;
-    A = (year % 4 == 0);
-    B = (year % 100 == 0);
-    C = (year % 400 == 0);
+    const bool A{(year % 4 == 0)}, B{(year % 100 == 0)}, C{(year % 400 == 0)};
 
     // Aussagenbeschreibung: Jahr ist ein Schaltjahr genau dann wenn...
     // Jahr durch 4 teilbar ist UND ( es NICHT durch 100 teilbar ist ODER es durch 400 teilbar ist)
@@ -49,7 +46,7 @@ uint16_t Calendar::getDayOfMonth(uint16_t year, uint16_t days)
     std::array<uint8_t, 12> sub_days_month = days_month;
 
     // Auf Schaltjahr prüfen
-    bool leapyear = checkforLeapYear_gregorian(year);
+    const bool leapyear{checkforLeapYear_gregorian(year)};
 
     if (leapyear)
     {
@@ -68,9 +65,7 @@ uint16_t Calendar::getDayOfMonth(uint16_t year, uint16_t days)
     // durch Monate (Array) iterieren und die ganzen Monate von der Tageszahl abziehen, bis
     // der nächste Monat bzw. dessen Tage größer ist als die aktuelle Summe => Monat gefunden!
     for (uint8_t i = 0; days > sub_days_month[i]; i++)
-    {
         days -= sub_days_month[i];
-    }
 
     // Schleife bricht ab, wenn aktuelle Anzahl Tage kleiner ist als Anzahl Gesamttage des aktuellen Monats
     // dann sind wir im richtigen Monat gelandet
@@ -84,7 +79,7 @@ uint8_t Calendar::getMonthOfYear(int16_t year, uint16_t days)
     std::array<uint8_t, 12> sub_days_month = days_month;
 
     // Auf Schaltjahr prüfen
-    bool leapyear = checkforLeapYear_gregorian(year);
+    const bool leapyear{checkforLeapYear_gregorian(year)};
 
     if (leapyear)
     {
@@ -126,37 +121,37 @@ double Calendar::computeJD(int16_t year, uint8_t month, uint8_t day, uint8_t hou
     if (month <= 2)
     {
         year--;
-        month += 12;
+        month += 12; // month zu Beginn bei max. 12 -> 24 < 128 !
     }
     //  Im Fall (month > 2) können alle Werte ohne Änderungen weiterverwendet werden.
     // ****************************************************************************************
 
     // ****************************************************************************************
     // Einzelne Summen berechnen: (Quelle siehe Funktionsende!)
-    uint16_t _A = year - getint((12 - month) / 10); // Intervall bis 65.535
-    uint8_t _M = (month - 3) % 12;                  // Intervall: [0; 11]
+    const uint16_t _A{year - getint((12 - month) / 10)}; // Intervall bis 65.535
+    const uint8_t _M{(month - 3) % 12};                  // Intervall: [0; 11]
 
-    uint32_t y = getint(365.25 * (_A + 4712)); // Intervall bis 25.657.716
-    uint16_t d = getint((30.6001 * _M) + 0.5); // Intervall bis 428
+    const uint32_t y{getint(365.25 * (_A + 4712))}; // Intervall bis 25.657.716
+    const uint16_t d{getint((30.6001 * _M) + 0.5)}; // Intervall bis 428
 
-    uint32_t N = y + d + day + 59; // Intervall: bis 25.658.569
+    const uint32_t N{y + d + day + 59}; // Intervall: bis 25.658.569
 
-    uint16_t g = getint(getint((_A / 100) + 49) * 0.75) - 38; // Intervall bis 490
+    const uint16_t g{getint(getint((_A / 100) + 49) * 0.75) - 38}; // Intervall bis 490
     // ****************************************************************************************
 
     // ****************************************************************************************
     // Nachkommastellen erstellen:
     //  Stunden bis Mikrosekunden
-    float frac = hour / 24.0 +
-                 minute / (24.0 * 60.0) +
-                 second / (24.0 * 60.0 * 60.0) +
-                 milisecond / (24.0 * 60.0 * 60.0 * 100.0) +
-                 microsecond / (24.0 * 60.0 * 60.0 * 100.0 * 100.0);
+    const float frac = hour / 24.0 +
+                       minute / (24.0 * 60.0) +
+                       second / (24.0 * 60.0 * 60.0) +
+                       milisecond / (24.0 * 60.0 * 60.0 * 100.0) +
+                       microsecond / (24.0 * 60.0 * 60.0 * 100.0 * 100.0);
     // ****************************************************************************************
 
     // ****************************************************************************************
     // JD aus allen Variablen  zusammensetzen:
-    long double JD = 1.0 * N - 1.0 * g + frac - 0.5; // - 0.5 folgt aus der unterschiedlichen Tagesdefinition der beiden Kalender:
+    const long double JD = 1.0 * N - 1.0 * g + frac - 0.5; // - 0.5 folgt aus der unterschiedlichen Tagesdefinition der beiden Kalender:
     // Gregorianischer Kalender geht von 0-24 Uhr
     // Julianischer Kalender geht von 12-12
     // ****************************************************************************************
@@ -175,19 +170,13 @@ double Calendar::computeJD(int16_t year, uint8_t month, uint8_t day, uint8_t hou
 // Berechnet das Datum im julianischen Kalender als Julian Day Number mit Tagesbruch (Fraction)
 double Calendar::computeJD(int16_t year, double dayFraction)
 {
-    long int A, B;
-    A = 0;
-    B = 0;
+    const int64_t A{static_cast<long int>(year / 100)}, B{2 - A + static_cast<long int>(A / 4)};
 
-    year--;
-    A = static_cast<long int>(year / 100);
-    B = 2 - A + static_cast<long int>(A / 4);
-
-    long double JD = static_cast<long int>(365.25 * year) +
-                     static_cast<long int>(30.6001 * 14) +
-                     1720994.5 +
-                     B +
-                     dayFraction;
+    const long double JD = static_cast<long int>(365.25 * year) +
+                           static_cast<long int>(30.6001 * 14) +
+                           1720994.5 +
+                           B +
+                           dayFraction;
 
     /*
     *
@@ -208,19 +197,16 @@ double Calendar::computeGMST(double jd)
     * (Umrechnung in rad nötig! 24 h = 2*pi, exakt: 23 h 56 min 4,1 s)
     */
 
-    const float omega_e = 7.29211510e-5f; // [rad/s] Rotationsgeschwindigkeit der Erde
+    const float omega_e{7.29211510e-5f}; // [rad/s] Rotationsgeschwindigkeit der Erde
 
-    uint32_t temp = 0; // temporäre Vaiable
+    const uint32_t temp{static_cast<uint32_t>(jd)}; // temporäre Vaiable: ggf JD umrechnen, da der Tag um 12 Stunden verschoben ist
 
-    double JD0h = 0;    // JD um 0 UTC
-    double theta_g = 0; // GMST um 0 UTC
-    double T = 0;       // Umlaufdauer
-    double gmst = 0;    // GMST in rad
+    double JD0h{0.0};    // JD um 0 UTC
+    double theta_g{0.0}; // GMST um 0 UTC
+    double T{0.0};       // Umlaufdauer
+    double gmst{0.0};    // GMST in rad
 
-    float T_u = 0; // Julianisches Jahrhundert
-
-    // ggf JD umrechnen, da der Tag um 12 Stunden verschoben ist:
-    temp = static_cast<uint32_t>(jd);
+    float T_u{0.0}; // Julianisches Jahrhundert
 
     if ((temp + 0.5) > jd)
         JD0h = temp - 0.5;

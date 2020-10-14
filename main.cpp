@@ -10,8 +10,8 @@
 // ---------Aufgabe 2.1-----------
 // ###############################
 
-static SGP4Propagator prop;      // nimmt Berechnungen vor (Def. siehe Header)
-inline const uint8_t Anzahl = 5; // Anzahl an Iterationen pro TLE (0, 360, 720, 1080, 1440)
+static SGP4Propagator prop;     // nimmt Berechnungen vor (Def. siehe Header)
+inline const uint8_t Anzahl{5}; // Anzahl an Iterationen pro TLE (0, 360, 720, 1080, 1440)
 
 // Ausgabe eines einzelnen Koordinaten-Objektes
 inline void _printECI(uint16_t i, const ECICoordinate &c)
