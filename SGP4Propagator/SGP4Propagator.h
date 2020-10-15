@@ -21,7 +21,7 @@ struct ECICoordinate
 	/**
 	 * @brief prints the coordinate
 	 */
-	void print();
+	void print() const;
 };
 
 /**
@@ -31,9 +31,8 @@ struct ECICoordinate
  */
 class SGP4Propagator
 {
-private:
-	Tle tle;						  //< contains the TLE used for the orbit propagation
-	bool neConstsInitialized = false; ///< indicates if the near earth constants were initialized
+	Tle tle;						 //< contains the TLE used for the orbit propagation
+	bool neConstsInitialized{false}; ///< indicates if the near earth constants were initialized
 
 public:
 	SGP4Propagator();

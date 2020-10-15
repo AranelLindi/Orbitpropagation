@@ -14,14 +14,14 @@ void BaseCoordinate::print(void) const
 // Ausgabe Geodetische Koordinate:
 void GeodeticCoordinate::print(void) const
 {
-    std::cout << "GeodeticCoordinate:";
+    std::cout << "GeodeticCoordinate:\n";
     BaseCoordinate::print();
 }
 
 // Ausgabe Geozentrische Koordinate:
 void GeocentricCoordinate::print(void) const
 {
-    std::cout << "GeocentricCoordinate:";
+    std::cout << "GeocentricCoordinate:\n";
     BaseCoordinate::print();
 }
 
@@ -37,7 +37,7 @@ GeocentricCoordinate CoordinateConvertion::convertECItoGeocentric(const ECICoord
     // Intervallprüfung longitude zwischen (-PI; PI]
     if (longitude > M_PI)
         longitude -= 2 * M_PI;
-    if (longitude <= -M_PI)
+    else if (longitude <= -M_PI)
         longitude += 2 * M_PI;
 
     const double heigth{sqrt(xsquare + ysquare + zsquare) - Re};
@@ -48,8 +48,8 @@ GeocentricCoordinate CoordinateConvertion::convertECItoGeocentric(const ECICoord
 GeodeticCoordinate CoordinateConvertion::convertECItoGeodetic(const ECICoordinate &eciCoord, double jd)
 {
     // Konstanten:
-    static const float f = 1.0 / 298.26;
-    static const float eSquare = (2 - f) * f;
+    static const constexpr float f{1.0 / 298.26};
+    static const constexpr float eSquare{(2 - f) * f};
 
     const double xsquare{eciCoord.x * eciCoord.x};
     const double ysquare{eciCoord.y * eciCoord.y};
@@ -60,7 +60,7 @@ GeodeticCoordinate CoordinateConvertion::convertECItoGeodetic(const ECICoordinat
     // Intervallprüfung für longitude: (-PI; PI]
     if (longitude > M_PI)
         longitude -= 2 * M_PI;
-    if (longitude <= -M_PI)
+    else if (longitude <= -M_PI)
         longitude += 2 * M_PI;
 
     // lambda und phi_1 sind bekannt (= Geocentric coordinate)

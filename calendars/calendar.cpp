@@ -1,7 +1,7 @@
 // eigener Code
 #include "calendar.h" // HEADER
 
-#define plot(x) std::cout << x << std::endl; // nur für Debugging-Zwecke
+//#define plot(x) std::cout << x << std::endl; // nur für Debugging-Zwecke
 
 // GLOBALE VARIABLEN
 static const constexpr std::array<uint8_t, 12> days_month = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}; // Array das gregorianischen Kalender repräsentiert. Aufrufender Code
@@ -97,7 +97,7 @@ uint8_t Calendar::getMonthOfYear(int16_t year, uint16_t days)
     // Nachdem Jahrestyp feststeht, beginnen, den Monat des Jahres herauszufinden. Dazu so lange
     // durch Monate (Array) iterieren und die ganzen Monate von der Tageszahl abziehen, bis
     // der nächste Monat bzw. dessen Tage größer ist als die aktuelle Summe => Monat gefunden!
-    uint8_t counter = 1; // Monatszähler. Startet im Januar (0 als Start ergäbe keinen Sinn, wäre außerhalb des Monats)
+    uint8_t counter{1}; // Monatszähler. Startet im Januar (0 als Start ergäbe keinen Sinn, wäre außerhalb des Monats)
 
     for (size_t i = 0; days > sub_days_month[i]; i++)
     {
@@ -142,16 +142,16 @@ double Calendar::computeJD(int16_t year, uint8_t month, uint8_t day, uint8_t hou
     // ****************************************************************************************
     // Nachkommastellen erstellen:
     //  Stunden bis Mikrosekunden
-    const float frac = hour / 24.0 +
-                       minute / (24.0 * 60.0) +
-                       second / (24.0 * 60.0 * 60.0) +
-                       milisecond / (24.0 * 60.0 * 60.0 * 100.0) +
-                       microsecond / (24.0 * 60.0 * 60.0 * 100.0 * 100.0);
+    const float frac = hour / 24.0f +
+                       minute / (24.0f * 60.0f) +
+                       second / (24.0f * 60.0f * 60.0f) +
+                       milisecond / (24.0f * 60.0f * 60.0f * 100.0f) +
+                       microsecond / (24.0f * 60.0f * 60.0f * 100.0f * 100.0f);
     // ****************************************************************************************
 
     // ****************************************************************************************
     // JD aus allen Variablen  zusammensetzen:
-    const long double JD = 1.0 * N - 1.0 * g + frac - 0.5; // - 0.5 folgt aus der unterschiedlichen Tagesdefinition der beiden Kalender:
+    const long double JD{1.0 * N - 1.0 * g + frac - 0.5}; // - 0.5 folgt aus der unterschiedlichen Tagesdefinition der beiden Kalender:
     // Gregorianischer Kalender geht von 0-24 Uhr
     // Julianischer Kalender geht von 12-12
     // ****************************************************************************************
@@ -172,9 +172,9 @@ double Calendar::computeJD(int16_t year, double dayFraction)
 {
     const int64_t A{static_cast<long int>(year / 100)}, B{2 - A + static_cast<long int>(A / 4)};
 
-    const long double JD = static_cast<long int>(365.25 * year) +
-                           static_cast<long int>(30.6001 * 14) +
-                           1720994.5 +
+    const long double JD = static_cast<long int>(365.25f * year) +
+                           static_cast<long int>(30.6001f * 14) +
+                           1720994.5f +
                            B +
                            dayFraction;
 
@@ -206,15 +206,13 @@ double Calendar::computeGMST(double jd)
     double T{0.0};       // Umlaufdauer
     double gmst{0.0};    // GMST in rad
 
-    float T_u{0.0}; // Julianisches Jahrhundert
-
     if ((temp + 0.5) > jd)
         JD0h = temp - 0.5;
     else
         JD0h = temp + 0.5;
 
     // Julianisches Jahrhundert berechnen:
-    T_u = (JD0h - 2451545.0) / 36525.0;
+    const float T_u{(JD0h - 2451545.0f) / 36525.0f};
 
     theta_g = 24110.54841f + T_u * (8640184.812866 + T_u * (0.093104f - 0.0000062f * T_u));
 

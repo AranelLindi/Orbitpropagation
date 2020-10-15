@@ -105,7 +105,7 @@ int main(void)
 
     //printf("\n\n %f\n", gmst1);
 
-    double jd = ca.computeGMST(2458982.5);
+    double jd = ca.computeGMST(2459137.23044);
 
     std::cout.precision(15);
     std::cout << jd << std::endl;

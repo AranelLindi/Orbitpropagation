@@ -2,7 +2,7 @@
 
 /* -------------------------- ECI Coordinate ----------------------------- */
 
-void ECICoordinate::print()
+void ECICoordinate::print() const
 {
 	std::cout << x << ", " << y << ", " << z;
 }
@@ -26,21 +26,21 @@ void SGP4Propagator::calculatePositionAndVelocity(int32_t secsAfterEpoch, ECICoo
 		DELTA_OMEGA, DELTA_i, DELTA_rDOT, DELTA_rfDOT, r_k, u_k, OMEGA_k, i_k, r_kDOT, rf_kDOT, M_x, M_y, M_z, N_x,
 		N_y, N_z, U_x, U_y, U_z, V_x, V_y, V_z, x, y, z, xdot, ydot, zdot;
 
-	static const double MIN_PER_DAY = 1440.0;
-	static const double SEC_PER_DAY = 86400.0;
-	static const double TWOPI = 6.2831853;
-	static const double TOTHRD = 0.66666667;
-	static const double TOTHRD3 = 1.5;
-	static const double TOTHRD2 = 0.33333333333333333333;
-	static const double AE = 1.0;
+	static const float MIN_PER_DAY{1440.0f};
+	static const float SEC_PER_DAY{86400.0f};
+	static const float TWOPI{6.2831853f};
+	static const float TOTHRD{0.66666667f};
+	static const float TOTHRD3{1.5f};
+	static const double TOTHRD2{0.33333333333333333333};
+	static const float AE{1.0f};
 
 	/* Get the WGS-84 constants */
-	static double const gm = 398600.5;									  //in [km^3/s^2]
-	static double const xkmper = 6378.137;								  //in [km]
-	static double const xke = 60.0 / sqrt(xkmper * xkmper * xkmper / gm); //in [1/min]
-	static double const ck2 = 0.5 * 0.00108262998905;					  //0.5 * J2
-	static double const a_30 = 0.00000253215306;						  //-J3
-	static double const ck4 = (-3.0 / 8.0) * (-0.00000161098761);		  //-3/8 * J4
+	static const float gm{398600.5f};									   //in [km^3/s^2]
+	static const float xkmper{6378.137f};								   //in [km]
+	static const float xke{60.0 / sqrt(xkmper * xkmper * xkmper / gm)};	   //in [1/min]
+	static double const constexpr ck2{0.5 * 0.00108262998905};			   //0.5 * J2
+	static double const a_30{0.00000253215306};							   //-J3
+	static double const constexpr ck4{(-3.0 / 8.0) * (-0.00000161098761)}; //-3/8 * J4
 
 	/* Avoid time independent processing by checking the TLE */
 	if (!neConstsInitialized)

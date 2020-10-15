@@ -33,7 +33,7 @@ struct GeodeticCoordinate : BaseCoordinate
 struct CoordinateConvertion
 {
     // Globale Konstante, wird in beiden Funktionen benötigt:
-    const float Re = 6378.137; // [km] Radius der Erde
+    const float Re{6378.137f}; // [km] Radius der Erde
 
     GeocentricCoordinate convertECItoGeocentric(const ECICoordinate &eciCoord, double jd);
 
