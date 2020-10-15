@@ -8,7 +8,7 @@ void BaseCoordinate::print(void) const
               << "\t\t\t"
               << "longitude:" << '\t' << this->longitude << '\n'
               << "\t\t\t"
-              << "height:" << '\t' << this->heigth << std::endl;
+              << "height:" << '\t' << this->height << std::endl;
 }
 
 // Ausgabe Geodetische Koordinate:
@@ -40,9 +40,9 @@ GeocentricCoordinate CoordinateConvertion::convertECItoGeocentric(const ECICoord
     else if (longitude <= -M_PI)
         longitude += 2 * M_PI;
 
-    const double heigth{sqrt(xsquare + ysquare + zsquare) - Re};
+    const double height{sqrt(xsquare + ysquare + zsquare) - Re};
 
-    return GeocentricCoordinate(latitude, longitude, heigth);
+    return GeocentricCoordinate(latitude, longitude, height);
 }
 
 GeodeticCoordinate CoordinateConvertion::convertECItoGeodetic(const ECICoordinate &eciCoord, double jd)
@@ -89,7 +89,7 @@ GeodeticCoordinate CoordinateConvertion::convertECItoGeodetic(const ECICoordinat
     sinPhi = sin(phi);
     C = 1.0 / sqrt(1 - eSquare * sinPhi * sinPhi);
 
-    const double heigth{R / cos(phi) - Re * C}; // cos( phi ) > 0 (Wirklich?)
+    const double height{R / cos(phi) - Re * C}; // cos( phi ) > 0 (Wirklich?)
 
-    return GeodeticCoordinate(latitude, longitude, heigth);
+    return GeodeticCoordinate(latitude, longitude, height);
 }
