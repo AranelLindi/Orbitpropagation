@@ -11,20 +11,20 @@ struct BaseCoordinate
     const double longitude;
     const double height;
 
-    BaseCoordinate(double _latitude, double _longitude, double _heigth) : latitude(_latitude), longitude(_longitude), height(_heigth) {}
+    BaseCoordinate(double _latitude, double _longitude, double _height) : latitude(_latitude), longitude(_longitude), height(_height) {}
 
     void print(void) const;
 };
 
 struct GeocentricCoordinate : BaseCoordinate
 {
-    GeocentricCoordinate(double _latitude, double _longitude, double _heigth) : BaseCoordinate(_latitude, _longitude, _heigth) {}
+    GeocentricCoordinate(double _latitude, double _longitude, double _height) : BaseCoordinate(_latitude, _longitude, _height) {}
 
     void print(void) const;
 };
 struct GeodeticCoordinate : BaseCoordinate
 {
-    GeodeticCoordinate(double _latitude, double _longitude, double _heigth) : BaseCoordinate(_latitude, _longitude, _heigth) {}
+    GeodeticCoordinate(double _latitude, double _longitude, double _height) : BaseCoordinate(_latitude, _longitude, _height) {}
 
     void print(void) const;
 };
