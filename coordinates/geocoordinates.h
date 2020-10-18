@@ -13,20 +13,20 @@ struct BaseCoordinate
 
     BaseCoordinate(double _latitude, double _longitude, double _height) : latitude(_latitude), longitude(_longitude), height(_height) {}
 
-    void print(void) const;
+    void print(void) const noexcept;
 };
 
 struct GeocentricCoordinate : BaseCoordinate
 {
     GeocentricCoordinate(double _latitude, double _longitude, double _height) : BaseCoordinate(_latitude, _longitude, _height) {}
 
-    void print(void) const;
+    void print(void) const noexcept;
 };
 struct GeodeticCoordinate : BaseCoordinate
 {
     GeodeticCoordinate(double _latitude, double _longitude, double _height) : BaseCoordinate(_latitude, _longitude, _height) {}
 
-    void print(void) const;
+    void print(void) const noexcept;
 };
 
 struct CoordinateConvertion
@@ -34,9 +34,9 @@ struct CoordinateConvertion
     // Globale Konstante, wird in beiden Funktionen benötigt:
     const float Re{6378.137f}; // [km] Radius der Erde
 
-    GeocentricCoordinate convertECItoGeocentric(const ECICoordinate &eciCoord, double jd);
+    GeocentricCoordinate convertECItoGeocentric(const ECICoordinate &eciCoord, double jd) noexcept;
 
-    GeodeticCoordinate convertECItoGeodetic(const ECICoordinate &eciCoord, double jd);
+    GeodeticCoordinate convertECItoGeodetic(const ECICoordinate &eciCoord, double jd) noexcept;
 };
 
 #endif // GeoCoordinates.h

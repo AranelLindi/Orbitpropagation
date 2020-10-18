@@ -18,7 +18,7 @@ static const constexpr std::array<uint8_t, 12> days_month = {31, 28, 31, 30, 31,
 }*/
 
 // Prüft ob übergebenes Jahr nach gregorianischem Kalender ein Schaltjahr ist (nur A.C.)
-bool Calendar::checkforLeapYear_gregorian(uint16_t year)
+bool Calendar::checkforLeapYear_gregorian(uint16_t year) noexcept
 {
     // Schaltjahr-Regel für gregorianischen Kalender:
     // 1. Regel: Jahr ist durch 4 teilbar -> Schaltjahr
@@ -40,7 +40,7 @@ bool Calendar::checkforLeapYear_gregorian(uint16_t year)
 }
 
 // Gibt abhängig von Schaltjahr/Nicht-Schaltjahr und dem Tag des Jahres, den Tag des Monats zurück (z.B. 206 Day of Year = 24. Tag des Monats Juli)
-uint16_t Calendar::getDayOfMonth(uint16_t year, uint16_t days)
+uint16_t Calendar::getDayOfMonth(uint16_t year, uint16_t days) noexcept
 {
     // Array klonen, ist dann auch nicht mehr const
     std::array<uint8_t, 12> sub_days_month = days_month;
@@ -73,7 +73,7 @@ uint16_t Calendar::getDayOfMonth(uint16_t year, uint16_t days)
 }
 
 // Liefert für die Anzahl der Tage des Jahres in Abhängigkeit von Schaltjahr/Nicht-Schaltjahr, den Monat in dem sich der Tag befindet (z.B. für 206 Day of Year = Monat Juli)
-uint8_t Calendar::getMonthOfYear(int16_t year, uint16_t days)
+uint8_t Calendar::getMonthOfYear(int16_t year, uint16_t days) noexcept
 {
     // Array klonen, ist dann auch nicht mehr const
     std::array<uint8_t, 12> sub_days_month = days_month;
@@ -111,7 +111,7 @@ uint8_t Calendar::getMonthOfYear(int16_t year, uint16_t days)
 }
 
 // Berechnet die Julian Day Number entsprechend des Jahres und des Tagebruchs.
-double Calendar::computeJD(int16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint8_t milisecond, uint8_t microsecond)
+double Calendar::computeJD(int16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint8_t milisecond, uint8_t microsecond) noexcept
 {
     // ****************************************************************************************
     // Fallunterscheidung:
@@ -168,7 +168,7 @@ double Calendar::computeJD(int16_t year, uint8_t month, uint8_t day, uint8_t hou
 }
 
 // Berechnet das Datum im julianischen Kalender als Julian Day Number mit Tagesbruch (Fraction)
-double Calendar::computeJD(int16_t year, double dayFraction)
+double Calendar::computeJD(int16_t year, double dayFraction) noexcept
 {
     const int64_t A{static_cast<long int>(year / 100)}, B{2 - A + static_cast<long int>(A / 4)};
 
@@ -188,7 +188,7 @@ double Calendar::computeJD(int16_t year, double dayFraction)
 }
 
 // Berechnet für ein Julian Day Fraction die entsprechende GMST (Greenwich Mean Sidereal Time) in radian
-double Calendar::computeGMST(double jd)
+double Calendar::computeGMST(double jd) noexcept
 {
     /*
     * Wird nach folgender Formel berechnet:
@@ -201,6 +201,7 @@ double Calendar::computeGMST(double jd)
 
     const uint32_t temp{static_cast<uint32_t>(jd)}; // temporäre Vaiable: ggf JD umrechnen, da der Tag um 12 Stunden verschoben ist
 
+    // folgende Variablen könnten nur unter schwerem Einsatz geconstet werden, deshalb so lassen.
     double JD0h{0.0};    // JD um 0 UTC
     double theta_g{0.0}; // GMST um 0 UTC
     double T{0.0};       // Umlaufdauer

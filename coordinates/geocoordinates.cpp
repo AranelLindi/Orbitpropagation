@@ -2,7 +2,7 @@
 
 // Print-Funktion der Koordinaten-Basisklasse:
 // (wird von beiden Objekten jeweils in der eigenen print-Funktion aufgerufen)
-void BaseCoordinate::print(void) const
+void BaseCoordinate::print(void) const noexcept
 {
     std::cout << '\t' << "latitude:" << '\t' << this->latitude << '\n'
               << "\t\t\t"
@@ -12,40 +12,44 @@ void BaseCoordinate::print(void) const
 }
 
 // Ausgabe Geodetische Koordinate:
-void GeodeticCoordinate::print(void) const
+void GeodeticCoordinate::print(void) const noexcept
 {
     std::cout << "GeodeticCoordinate:\n";
     BaseCoordinate::print();
 }
 
 // Ausgabe Geozentrische Koordinate:
-void GeocentricCoordinate::print(void) const
+void GeocentricCoordinate::print(void) const noexcept
 {
     std::cout << "GeocentricCoordinate:\n";
     BaseCoordinate::print();
 }
 
-GeocentricCoordinate CoordinateConvertion::convertECItoGeocentric(const ECICoordinate &eciCoord, double jd)
+GeocentricCoordinate CoordinateConvertion::convertECItoGeocentric(const ECICoordinate &eciCoord, double jd) noexcept
 {
     const double xsquare{eciCoord.x * eciCoord.x};
     const double ysquare{eciCoord.y * eciCoord.y};
     const double zsquare{eciCoord.z * eciCoord.z};
 
     const double latitude{atan(eciCoord.z / sqrt(xsquare + ysquare))}; // Nenner > 0
-    double longitude{atan2(eciCoord.y, eciCoord.x) - Calendar::computeGMST(jd)};
-
-    // Intervallprüfung longitude zwischen (-PI; PI]
-    if (longitude > M_PI)
-        longitude -= 2 * M_PI;
-    else if (longitude <= -M_PI)
-        longitude += 2 * M_PI;
+    const double longitude{atan2(eciCoord.y, eciCoord.x) - Calendar::computeGMST(jd)};
 
     const double height{sqrt(xsquare + ysquare + zsquare) - Re};
 
-    return GeocentricCoordinate(latitude, longitude, height);
+    // Intervallprüfung longitude zwischen (-PI; PI]
+    const auto interval = [](double i) noexcept -> double {
+        if (i > M_PI)
+            i -= 2 * M_PI;
+        else if (i <= -M_PI)
+            i += 2 * M_PI;
+
+        return i;
+    };
+
+    return GeocentricCoordinate(latitude, interval(longitude), height);
 }
 
-GeodeticCoordinate CoordinateConvertion::convertECItoGeodetic(const ECICoordinate &eciCoord, double jd)
+GeodeticCoordinate CoordinateConvertion::convertECItoGeodetic(const ECICoordinate &eciCoord, double jd) noexcept
 {
     // Konstanten:
     static const constexpr float f{1.0 / 298.26};
@@ -55,13 +59,17 @@ GeodeticCoordinate CoordinateConvertion::convertECItoGeodetic(const ECICoordinat
     const double ysquare{eciCoord.y * eciCoord.y};
 
     // berechne longitude im geodetischen Referenzfenster:
-    double longitude{atan2(eciCoord.y, eciCoord.x) - Calendar::computeGMST(jd)};
+    const double longitude{atan2(eciCoord.y, eciCoord.x) - Calendar::computeGMST(jd)};
 
     // Intervallprüfung für longitude: (-PI; PI]
-    if (longitude > M_PI)
-        longitude -= 2 * M_PI;
-    else if (longitude <= -M_PI)
-        longitude += 2 * M_PI;
+    const auto interval = [](double i) noexcept -> double {
+        if (i > M_PI)
+            i -= 2 * M_PI;
+        else if (i <= -M_PI)
+            i += 2 * M_PI;
+
+        return i;
+    };
 
     // lambda und phi_1 sind bekannt (= Geocentric coordinate)
     const double R{sqrt(xsquare + ysquare)};
@@ -91,5 +99,5 @@ GeodeticCoordinate CoordinateConvertion::convertECItoGeodetic(const ECICoordinat
 
     const double height{R / cos(phi) - Re * C}; // cos( phi ) > 0 (Wirklich?)
 
-    return GeodeticCoordinate(latitude, longitude, height);
+    return GeodeticCoordinate(latitude, interval(longitude), height);
 }
